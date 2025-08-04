@@ -143,6 +143,7 @@ def convertCardNumberToInt(number: str):
   return value
 
 def checkStraights(hand: Hand, flop: Flop):
+  debug = True
   aceVal = convertCardNumberToInt(ACE_NUMBER)
 
   # get string of flop numbers with no duplicates
@@ -155,6 +156,12 @@ def checkStraights(hand: Hand, flop: Flop):
   # add hand cards and remove duplicates
   combinedString = "".join(map(str, set(numberString + hand.numbers)))
   sortedString = "".join(sorted(combinedString))
+  
+  if debug:
+    print("\nNEW test")
+    print("hand: " + str(hand.numbers))
+    print("flop: " + str(flop.numbers))
+    print("sortedString: " + sortedString)
 
   # ace counts as low in straights, prepend as an extra check
   if ACE_NUMBER in sortedString:
@@ -166,8 +173,6 @@ def checkStraights(hand: Hand, flop: Flop):
     # a is 97 in ASCII, subtract 95 to get "2"
     # cardsAsRanks.append(ord(card) - 95) # convertCardNumberToInt()
 
-  # print("\nNEW test")
-
   # for card in cardsAsRanks:
   for card in sortedString:
     cardVal = convertCardNumberToInt(card)
@@ -176,6 +181,7 @@ def checkStraights(hand: Hand, flop: Flop):
     else:
       firstStraightCard = cardVal
 
+    # @TODO this is wrong, if hand has J and board has KQ, it should return true
     # if last straight card is beyond high ace, no more straights possible
     if firstStraightCard + 4 > aceVal:
       return False
@@ -187,16 +193,20 @@ def checkStraights(hand: Hand, flop: Flop):
     else:
       straightCheck = card
       for i in range(firstStraightCard + 1 + 95, firstStraightCard + 5 + 95):
-        # print("i " + str(i))
+        if debug:
+          print("i " + str(i))
         straightCheck += chr(i)
 
-    # print("straightCheck " + straightCheck)
-    # print("sortedString " + sortedString)
+    if debug:
+      print("straightCheck " + straightCheck)
+      print("sortedString " + sortedString)
     common_chars = "".join(sorted(set(straightCheck) & set(sortedString)))
-    # print("common_chars1 " + common_chars)
+    if debug:
+      print("common_chars1 " + common_chars)
     if len(common_chars) >= 3:
       common_chars2 = "".join(sorted(set(common_chars) & set(hand.numbers)))
-      # print("common_chars2 " + common_chars)
+      if debug:
+        print("common_chars2 " + common_chars)
       if len(common_chars2) > 0:
         return True
 

@@ -54,16 +54,16 @@ class TestFlopConnect(unittest.TestCase):
         self.assertTrue(result)
 
         # two straight cards in hand
-        # hand = Hand(Card("i", "s"), Card("j", "n"))
-        # flop = Flop(Card("a", "n"), Card("b", "s"), Card("k", "n"))
-        # result = checkStraights(hand, flop)
-        # self.assertTrue(result)
+        hand = Hand(Card("i", "s"), Card("j", "n"))
+        flop = Flop(Card("a", "n"), Card("b", "s"), Card("k", "n"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
 
         # one straight card in hand
-        # hand = Hand(Card("a", "s"), Card("j", "n"))
-        # flop = Flop(Card("b", "n"), Card("l", "s"), Card("k", "n"))
-        # result = checkStraights(hand, flop)
-        # self.assertTrue(result)
+        hand = Hand(Card("a", "s"), Card("j", "n"))
+        flop = Flop(Card("b", "n"), Card("l", "s"), Card("k", "n"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
 
 
     def test_checkFlushes(self):
