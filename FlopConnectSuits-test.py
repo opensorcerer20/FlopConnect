@@ -1,5 +1,5 @@
 import unittest
-from FlopConnectSuits import checkPairs, checkStraights, checkFlushes, Hand, Flop, Card
+from FlopConnectSuits import checkPairs, checkStraights, checkFlushes, flopHasDuplicateCard, Hand, Flop, Card
 
 class TestFlopConnect(unittest.TestCase):
     def test_checkPairs(self):
@@ -116,6 +116,40 @@ class TestFlopConnect(unittest.TestCase):
         result = checkFlushes(hand, flop)
         self.assertFalse(result)
 
+    def test_flopHasDuplicateCard(self):
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("a", "s"), Card("d", "s"), Card("e", "d"))
+        result = flopHasDuplicateCard(hand, flop)
+        self.assertTrue(result)
+
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("d", "s"), Card("a", "s"), Card("e", "d"))
+        result = flopHasDuplicateCard(hand, flop)
+        self.assertTrue(result)
+
+        hand = Hand(Card("b", "s"), Card("a", "s"))
+        flop = Flop(Card("a", "s"), Card("d", "s"), Card("e", "d"))
+        result = flopHasDuplicateCard(hand, flop)
+        self.assertTrue(result)
+
+        hand = Hand(Card("a", "s"), Card("a", "h"))
+        flop = Flop(Card("a", "d"), Card("d", "s"), Card("e", "d"))
+        result = flopHasDuplicateCard(hand, flop)
+        self.assertFalse(result)
+
+    # def test_unTranslateHand(self):
+    #     result = unTranslateHand("9sAc")
+    #     self.assertIsInstance(result, Hand)
+    #     self.assertEqual(result.numbers, "hm")
+    #     self.assertEqual(result.suits, "sc")
+
+        # result = unTranslateHand("10sAc")
+        # self.assertIsInstance(result, Hand)
+        # self.assertEqual(result.numbers, "im")
+        # self.assertEqual(result.suits, "sc")
+
+
+# python3 -m FlopConnectSuits-test -v
 
 if __name__ == '__main__':
   unittest.main()
