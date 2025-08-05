@@ -1,80 +1,121 @@
 import unittest
-from FlopConnect import checkPairs, translateCard, checkStraights, checkFlushes, Hand, Flop, Card
+from FlopConnectSuits import checkPairs, checkStraights, checkFlushes, Hand, Flop, Card
 
 class TestFlopConnect(unittest.TestCase):
     def test_checkPairs(self):
-      # @TODO use new classes
-      hand = {
-          "cards": [{"number": "a", "suit": "x"}, {"number": "b", "suit": "y"}],
-          "numbers": "ab",
-          "suits": "xy"
-      }
-      flop = {
-          "cards": [{"number": "a", "suit": "z"}, {"number": "d", "suit": "y"}, {"number": "e", "suit": "z"}],
-          "numbers": "ade",
-          "suits": "zyz"
-      }
-      
-      # Check if first card number in hand matches a card in flop
-      result = checkPairs(hand, flop)
-      self.assertTrue(result)
+        # Check first card in hand matches
+        hand = Hand(Card("a", "s"), Card("b", "d"))
+        flop = Flop(Card("a", "d"), Card("d", "s"), Card("e", "d"))
+        result = checkPairs(hand, flop)
+        self.assertTrue(result)
 
-      # Check if second card number in hand matches a card in flop
-      flop.cards[0].number = "b"  # Change flop to have a matching number
-      flop.numbers = "bde"  # Update numbers accordingly
-      hand.cards[0].number = "f"  # Change first card to no match
-      hand.numbers = "fb"  # Update numbers accordingly
-      result = checkPairs(hand, flop)
-      self.assertTrue(result)
+        # Check pocket pair matches
+        hand = Hand(Card("b", "s"), Card("b", "d"))
+        flop = Flop(Card("b", "h"), Card("d", "s"), Card("e", "d"))
+        result = checkPairs(hand, flop)
+        self.assertTrue(result)
 
-      #def test_checkPairs_no_match(self):
+        # Check second card in hand matches
+        hand = Hand(Card("f", "s"), Card("b", "d"))
+        flop = Flop(Card("b", "h"), Card("d", "s"), Card("e", "d"))
+        result = checkPairs(hand, flop)
+        self.assertTrue(result)
 
-      hand.cards[1].number = "g"  # Change hand to have no matching number
-      hand.numbers = "fg"  # Update numbers accordingly
-      result = checkPairs(hand, flop)
-      self.assertFalse(result)
+        # Test no match
+        hand = Hand(Card("f", "s"), Card("g", "d"))
+        flop = Flop(Card("b", "d"), Card("d", "s"), Card("e", "d"))
+        result = checkPairs(hand, flop)
+        self.assertFalse(result)
 
-    # def test_checkStraights(self):
-    #     # Check if first card number in hand is part of a straight in flop
-    #     result = checkStraights(hand, flop)
-    #     assertTrue(result)
+        # Test pocket pair but no match
+        hand = Hand(Card("f", "s"), Card("f", "d"))
+        flop = Flop(Card("b", "d"), Card("d", "s"), Card("e", "d"))
+        result = checkPairs(hand, flop)
+        self.assertFalse(result)
 
-    # def test_checkStraights_no_match(self):
-    #     # hand.cards[0].number = "f"  # Change hand to have no matching number
-    #     # hand.numbers = "fb"  # Update numbers accordingly
-    #     # result = checkStraights(hand, flop)
-    #     # assertFalse(result)
-    #     assertFalse(True)
+    def test_checkStraights(self):
+        # edge case A2 and 789
+        # three straight cards on flop, none in hand
+        hand = Hand(Card("m", "s"), Card("a", "d"))
+        flop = Flop(Card("f", "d"), Card("g", "s"), Card("h", "d"))
+        result = checkStraights(hand, flop)
+        self.assertFalse(result)
+
+        # test ace low
+        hand = Hand(Card("m", "s"), Card("j", "d"))
+        flop = Flop(Card("a", "d"), Card("d", "s"), Card("e", "d"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
+
+        # test ace high
+        hand = Hand(Card("m", "s"), Card("a", "d"))
+        flop = Flop(Card("a", "h"), Card("i", "s"), Card("l", "d"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
+
+        # two straight cards in hand
+        hand = Hand(Card("i", "s"), Card("j", "d"))
+        flop = Flop(Card("a", "d"), Card("b", "s"), Card("k", "d"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
+
+        # one straight card in hand
+        # also tests jack straight; tests that the straight potential goes below jack to 10
+        hand = Hand(Card("a", "s"), Card("j", "d"))
+        flop = Flop(Card("b", "d"), Card("l", "s"), Card("k", "d"))
+        result = checkStraights(hand, flop)
+        self.assertTrue(result)
+
 
     def test_checkFlushes(self):
-      # @TODO use new classes
-      hand = {
-          "cards": [{"number": "a", "suit": "y"}, {"number": "b", "suit": "y"}],
-          "numbers": "ab",
-          "suits": "yy"
-      }
-      flop = {
-          "cards": [{"number": "a", "suit": "z"}, {"number": "d", "suit": "y"}, {"number": "e", "suit": "z"}],
-          "numbers": "ade",
-          "suits": "zyz"
-      }
+        # Test suited hand, one on flop matches
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("c", "d"), Card("d", "s"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
 
-      # suited hand, one on flop
-      result = checkFlushes(hand, flop)
-      self.assertTrue(result)
+        # Test one suit in hand, two on flop matches
+        hand = Hand(Card("a", "s"), Card("b", "d"))
+        flop = Flop(Card("c", "d"), Card("d", "s"), Card("e", "s"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
 
-      # one flush card in hand, two on flop
-      hand.cards[1].suit = "z"  # Change hand to have no matching number
-      hand.suits = "yz"  # Update numbers accordingly
-      result = checkFlushes(hand, flop)
-      self.assertFalse(result)
-      
-      # suited hand, two on flop
-      
-      # suited hand, three on flop
-      
-      # suited hand, none on flop
-      
+        # one suit in hand, three on flop
+        hand = Hand(Card("a", "s"), Card("b", "d"))
+        flop = Flop(Card("c", "s"), Card("d", "s"), Card("e", "s"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
+
+        # suited hand, two on flop
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("c", "s"), Card("d", "s"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
+
+        # suited hand, three on flop
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("c", "s"), Card("d", "s"), Card("e", "s"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
+
+        # suited hand, none on flop
+        hand = Hand(Card("a", "s"), Card("b", "s"))
+        flop = Flop(Card("c", "d"), Card("d", "d"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertFalse(result)
+
+        # one suit in hand, one on flop
+        hand = Hand(Card("a", "s"), Card("b", "d"))
+        flop = Flop(Card("c", "s"), Card("d", "d"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertFalse(result)
+
+        # one suit in hand, none on flop
+        hand = Hand(Card("a", "s"), Card("b", "d"))
+        flop = Flop(Card("c", "d"), Card("d", "d"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertFalse(result)
+
 
 if __name__ == '__main__':
   unittest.main()

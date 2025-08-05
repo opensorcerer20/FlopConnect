@@ -143,7 +143,7 @@ def convertCardNumberToInt(number: str):
   return value
 
 def checkStraights(hand: Hand, flop: Flop):
-  debug = True
+  debug = False
   aceVal = convertCardNumberToInt(ACE_NUMBER)
 
   # get string of flop numbers with no duplicates
