@@ -54,22 +54,6 @@ def numberToRank(num):
 def translateFlop(flop: Flop):
   return translateCard(flop.cards[0]) + translateCard(flop.cards[1]) + translateCard(flop.cards[2])
 
-# TODO finish method
-# def unTranslateHand(hand: str):
-  # translate something like As2d to proper cards
-  # TODO validate input: make sure format is nsns (number suit number suit)
-  
-  # TODO if len(hand) == 5, one is "10"
-  # TODO if len(hand) == 6, both are "10"
-  
-  # card1 = hand[0:2]
-  # card2 = hand[2:]
-  # print("card1 " + card1)
-  # print("card2 " + card2)
-  
-  # FAKE RETURN
-  # return Hand(Card('a', 's'), Card('b', 's'))
-
 def translateHand(hand: Hand):
   return translateCard(hand.cards[0]) + translateCard(hand.cards[1])
 
@@ -85,10 +69,19 @@ def makeDeck():
 
 def makeAllHands(deck: list[Card]):
   hands = []
+  uniqueHands = []
   for i in range(0, len(deck)):
     for j in range(0, len(deck)):
       if (i != j):
-        hands.append(Hand(deck[i], deck[j]))
+        hand = Hand(deck[i], deck[j])
+
+        original_string = translateHand(hand)
+        sorted_characters = sorted(original_string)
+        sorted_string = "".join(sorted_characters)
+
+        if not sorted_string in uniqueHands:
+          uniqueHands.append(sorted_string)
+          hands.append(hand)
   return hands
 
 def makeAllFlops(deck: list[Card]):
@@ -185,7 +178,6 @@ def checkStraights(hand: Hand, flop: Flop):
         return True
 
   return False
-
 def checkFlushes(hand: Hand, flop: Flop):
   # if hand is suited and one on flop, return true
   if hand.cards[0].suit == hand.cards[1].suit:
@@ -208,7 +200,8 @@ def flopHasDuplicateCard(hand: Hand, flop: Flop):
 # main loop
 def main(hand = ""):
   deck = makeDeck()
-  # hands = makeAllHands(deck)
+  hands = makeAllHands(deck)
+  # hands = [Hand(Card('a', 's'), Card('a', 'h')), Hand(Card('a', 'h'), Card('a', 's'))]
   flops = makeAllFlops(deck)
 
   """
@@ -218,51 +211,61 @@ def main(hand = ""):
   """
 
   handStart = 0
-  handLimit = 1
+  handLimit = 120
   flopStart = 0
 
   # flopLimit = 1000 #len(flops)
   flopLimit = len(flops)
 
-  totals = {"flops": 0, "pairs": 0, "straights": 0, "flushes": 0}
-  makeCsv = False
+  # change to true to export flop-by-flop results
+  makeSingleHandCsv = False
 
   # python3 FlopConnectSuits.py >> flopconnect_test.csv
-  if makeCsv:
-     print("hand,flop,pair?,straight?,flush?")
+  if handLimit == 1 and makeSingleHandCsv:
+    print("hand,flop,pair?,straight?,flush?")
+  else:
+    print("hand,pair+ chance,3 straight chance,3 flush chance")
 
-  # for handIndex in range(handStart, handLimit):
-  thisHand = Hand(Card('m', 's'), Card('a', 'h'))
+  for handIndex in range(handStart, handLimit):
+  # thisHand = Hand(Card('m', 's'), Card('a', 'h'))
+    thisHand = hands[handIndex]
+    totals = dict({"flops": 0, "pairs": 0, "straights": 0, "flushes": 0})
+    for flopIndex in range(flopStart, flopLimit):
+      # thisHand = hands[handIndex]
+      thisFlop = flops[flopIndex]
+      if not flopHasDuplicateCard(thisHand, thisFlop):
+        totals["flops"] += 1
+        hasPair = checkPairs(thisHand, thisFlop)
+        hasStraight = checkStraights(thisHand, thisFlop)
+        hasFlush = checkFlushes(thisHand, thisFlop)
+        if hasPair:
+          totals["pairs"] += 1
+        if hasStraight:
+          totals["straights"] += 1
+        if hasFlush:
+          totals["flushes"] += 1
 
-  for flopIndex in range(flopStart, flopLimit):
-    # thisHand = hands[handIndex]
-    thisFlop = flops[flopIndex]
-    if not flopHasDuplicateCard(thisHand, thisFlop):
-      totals["flops"] += 1
-      hasPair = checkPairs(thisHand, thisFlop)
-      hasStraight = checkStraights(thisHand, thisFlop)
-      hasFlush = checkFlushes(thisHand, thisFlop)
-      if hasPair:
-        totals["pairs"] += 1
-      if hasStraight:
-        totals["straights"] += 1
-      if hasFlush:
-        totals["flushes"] += 1
+        if handLimit == 1 and makeSingleHandCsv:
+          row = []
+          row.append(translateHand(thisHand))
+          row.append(translateFlop(thisFlop))
+          #status = "Adult" if age >= 18 else "Minor"
+          row.append("PAIR" if hasPair else "-")
+          row.append("STR" if hasStraight else "-")
+          row.append("FLSH" if hasFlush else "-")
+          print(",".join(row))
 
-      if makeCsv:
-        row = []
-        row.append(translateHand(thisHand))
-        row.append(translateFlop(thisFlop))
-        #status = "Adult" if age >= 18 else "Minor"
-        row.append("PAIR" if hasPair else "-")
-        row.append("STR" if hasStraight else "-")
-        row.append("FLSH" if hasFlush else "-")
-        print(",".join(row))
+    if not makeSingleHandCsv:
+      # print(str(totals))
+      # print("hand: " + translateHand(thisHand))
+      results = dict({"hand": translateHand(thisHand), "pair_pct": totals["pairs"] / totals["flops"], "straight_pct": totals["straights"] / totals["flops"], "flush_pct": totals["flushes"] / totals["flops"]})
+      pairPct = "{:.3f}".format(results["pair_pct"])
+      straightPct = "{:.3f}".format(results["straight_pct"])
+      flushPct = "{:.3f}".format(results["flush_pct"])
+      print(f"{results["hand"]},{pairPct},{straightPct},{flushPct}")
+      # print(str({"hand": translateHand(thisHand), "pair_pct": totals["pairs"] / totals["flops"], "straight_pct": totals["straights"] / totals["flops"], "flush_pct": totals["flushes"] / totals["flops"]}))
 
-  if not makeCsv:
-    print(str(totals))
-    print(str({"pair_pct": totals["pairs"] / totals["flops"], "straight_pct": totals["straights"] / totals["flops"], "flush_pct": totals["flushes"] / totals["flops"]}))
-
+# command: python3 FlopConnectSuits.py > results.csv
 if __name__ == "__main__":
   # main(sys.argv[1])
   main()

@@ -137,17 +137,7 @@ class TestFlopConnect(unittest.TestCase):
         result = flopHasDuplicateCard(hand, flop)
         self.assertFalse(result)
 
-    # def test_unTranslateHand(self):
-    #     result = unTranslateHand("9sAc")
-    #     self.assertIsInstance(result, Hand)
-    #     self.assertEqual(result.numbers, "hm")
-    #     self.assertEqual(result.suits, "sc")
-
-        # result = unTranslateHand("10sAc")
-        # self.assertIsInstance(result, Hand)
-        # self.assertEqual(result.numbers, "im")
-        # self.assertEqual(result.suits, "sc")
-
+    # @TODO test generating hands, make sure only 6 pairs (suits dont duplicate)
 
 # python3 -m FlopConnectSuits-test -v
 
