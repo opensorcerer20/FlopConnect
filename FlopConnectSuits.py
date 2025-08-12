@@ -4,6 +4,7 @@ import sys
 ACE_NUMBER = "m"
 NUMBERS = "abcdefghijklm"
 SUITS = "shdc"
+FLOP_HIT_MIN = 3
 
 class Card:
   def __init__(self, number: str, suit: str):
@@ -171,7 +172,7 @@ def checkStraights(hand: Hand, flop: Flop):
     common_chars = "".join(sorted(set(straightCheck) & set(sortedString)))
     if debug:
       print("common_chars1 " + common_chars)
-    if len(common_chars) >= 3:
+    if len(common_chars) >= FLOP_HIT_MIN:
       common_chars2 = "".join(sorted(set(common_chars) & set(hand.numbers)))
       if debug:
         print("common_chars2 " + common_chars)
@@ -180,16 +181,17 @@ def checkStraights(hand: Hand, flop: Flop):
 
   return False
 def checkFlushes(hand: Hand, flop: Flop):
-  # if hand is suited and one on flop, return true
-  if hand.cards[0].suit == hand.cards[1].suit:
-    return hand.cards[0].suit in flop.suits
+  debug = False
+  handSuited = hand.cards[0].suit == hand.cards[1].suit
 
   # foreach card in hand
   for suit in hand.suits:
-    # print("\nnumber " + str(number))
-    # print("\nflop " + str(flop.numbers))
-    # print("\ntest " + str(number in flop.numbers))
-    if flop.suits.count("s") > 1 and suit in flop.suits:
+    if (debug):
+      print("\nsuit " + str(suit))
+      print("flop suits " + str(flop.suits))
+      print("test 1 " + str(flop.suits.count(suit) >= FLOP_HIT_MIN - 1))
+      print("test 2 " + str(handSuited and flop.suits.count(suit) >= FLOP_HIT_MIN - 2))
+    if flop.suits.count(suit) >= FLOP_HIT_MIN - 1 or (handSuited and flop.suits.count(suit) >= FLOP_HIT_MIN - 2):
       return True
   return False
 
@@ -231,9 +233,9 @@ def main(hand = ""):
 
   # python3 FlopConnectSuits.py >> flopconnect_test.csv
   if handLimit == 1 and makeSingleHandCsv:
-    print("hand,flop,pair?,straight?,flush?")
+    print(f"hand,flop,pair?,{FLOP_HIT_MIN} straight?,{FLOP_HIT_MIN} flush?")
   else:
-    print("hand,pair+ chance,3 straight chance,3 flush chance")
+    print(f"hand,pair+ chance,{FLOP_HIT_MIN} straight chance,{FLOP_HIT_MIN} flush chance")
 
   for handIndex in range(handStart, handLimit):
   # thisHand = Hand(Card('m', 's'), Card('a', 'h'))

@@ -74,6 +74,12 @@ class TestFlopConnect(unittest.TestCase):
         result = checkFlushes(hand, flop)
         self.assertTrue(result)
 
+        # check non spade hand (oops)
+        hand = Hand(Card("a", "h"), Card("b", "h"))
+        flop = Flop(Card("c", "d"), Card("d", "h"), Card("e", "d"))
+        result = checkFlushes(hand, flop)
+        self.assertTrue(result)
+
         # Test one suit in hand, two on flop matches
         hand = Hand(Card("a", "s"), Card("b", "d"))
         flop = Flop(Card("c", "d"), Card("d", "s"), Card("e", "s"))
@@ -106,13 +112,13 @@ class TestFlopConnect(unittest.TestCase):
 
         # one suit in hand, one on flop
         hand = Hand(Card("a", "s"), Card("b", "d"))
-        flop = Flop(Card("c", "s"), Card("d", "d"), Card("e", "d"))
+        flop = Flop(Card("c", "s"), Card("d", "d"), Card("e", "c"))
         result = checkFlushes(hand, flop)
         self.assertFalse(result)
 
         # one suit in hand, none on flop
         hand = Hand(Card("a", "s"), Card("b", "d"))
-        flop = Flop(Card("c", "d"), Card("d", "d"), Card("e", "d"))
+        flop = Flop(Card("c", "c"), Card("d", "c"), Card("e", "c"))
         result = checkFlushes(hand, flop)
         self.assertFalse(result)
 
