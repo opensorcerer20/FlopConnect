@@ -75,7 +75,8 @@ def makeAllHands(deck: list[Card]):
       if (i != j):
         hand = Hand(deck[i], deck[j])
 
-        original_string = translateHand(hand)
+        # sort cards eg "2h 2c" should be "2c 2h"
+        original_string = [translateCard(hand.cards[0]), translateCard(hand.cards[1])]
         sorted_characters = sorted(original_string)
         sorted_string = "".join(sorted_characters)
 
@@ -201,6 +202,9 @@ def flopHasDuplicateCard(hand: Hand, flop: Flop):
 def main(hand = ""):
   deck = makeDeck()
   hands = makeAllHands(deck)
+  #print("num hands " + str(len(hands)))
+  # for hand in hands:
+    # print(translateHand(hand))
   # hands = [Hand(Card('a', 's'), Card('a', 'h')), Hand(Card('a', 'h'), Card('a', 's'))]
   flops = makeAllFlops(deck)
 
@@ -210,15 +214,20 @@ def main(hand = ""):
   test 1010
   """
 
-  handStart = 0
-  handLimit = 120
+  # change to true to export flop-by-flop results
+  #hands = [Hand(Card('f', 's'), Card('g', 's'))]
+  makeSingleHandCsv = False
+
+  resultSet = 0
+  handStart = 140 * resultSet
+  handLimit = min(len(hands), 140 * (resultSet + 1))
   flopStart = 0
 
   # flopLimit = 1000 #len(flops)
-  flopLimit = len(flops)
-
-  # change to true to export flop-by-flop results
-  makeSingleHandCsv = False
+  if makeSingleHandCsv:
+    flopLimit = min(len(flops), 1200)
+  else:
+    flopLimit = len(flops)
 
   # python3 FlopConnectSuits.py >> flopconnect_test.csv
   if handLimit == 1 and makeSingleHandCsv:
